@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Staff Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+</head>
+<body>
+
+<nav class="navbar navbar-dark bg-dark px-4">
+    <a class="navbar-brand" href="/">TrekManager</a>
+    <div class="d-flex gap-3">
+        <a href="/staff/dashboard" class="text-white text-decoration-none">Dashboard</a>
+        <a href="/logout" class="text-white text-decoration-none">Logout</a>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <h4>Welcome, {{ current_user.name }}!</h4>
+    <p class="text-muted">{{ staff_profile.bio }}</p>
+
+    <h5 class="mt-4 mb-3">Your Assigned Treks</h5>
+
+    {% if trek_data %}
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Trek Name</th>
+                <th>Location</th>
+                <th>Difficulty</th>
+                <th>Available Slots</th>
+                <th>Registered Trekkers</th>
+                <th>Status</th>
+                <th>Start Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in trek_data %}
+            <tr>
+                <td>{{ item.trek.name }}</td>
+                <td>{{ item.trek.location }}</td>
+                <td>{{ item.trek.difficulty }}</td>
+                <td>{{ item.trek.available_slots }}/{{ item.trek.total_slots }}</td>
+                <td>{{ item.count }}</td>
+                <td>
+                    <span class="badge
+                        {% if item.trek.status == 'Open' %}bg-success
+                        {% elif item.trek.status == 'Closed' %}bg-danger
+                        {% elif item.trek.status == 'Completed' %}bg-secondary
+                        {% else %}bg-warning{% endif %}">
+                        {{ item.trek.status }}
+                    </span>
+                </td>
+                <td>{{ item.trek.start_date }}</td>
+                <td>
+                    <div class="d-flex gap-1">
+                        <a href="/staff/trek/{{ item.trek.id }}/update" class="btn btn-warning btn-sm">Update</a>
+                        <a href="/staff/trek/{{ item.trek.id }}/participants" class="btn btn-info btn-sm">Participants</a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="alert alert-info">No treks assigned to you yet.</div>
+    {% endif %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+    crossorigin="anonymous"></script>
+</body>
+</html>

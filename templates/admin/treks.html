@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Manage Treks</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+</head>
+<body>
+
+<nav class="navbar navbar-dark bg-dark px-4">
+    <a class="navbar-brand" href="/">TrekManager</a>
+    <div class="d-flex gap-3">
+        <a href="/admin/dashboard" class="text-white text-decoration-none">Dashboard</a>
+        <a href="/admin/treks" class="text-white text-decoration-none">Treks</a>
+        <a href="/admin/users" class="text-white text-decoration-none">Users</a>
+        <a href="/admin/staff" class="text-white text-decoration-none">Staff</a>
+        <a href="/admin/bookings" class="text-white text-decoration-none">Bookings</a>
+        <a href="/admin/search" class="text-white text-decoration-none">Search</a>
+        <a href="/logout" class="text-white text-decoration-none">Logout</a>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4>All Treks</h4>
+        <a href="/admin/trek/add" class="btn btn-success btn-sm">+ Add New Trek</a>
+    </div>
+
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Location</th>
+                <th>Difficulty</th>
+                <th>Duration</th>
+                <th>Slots</th>
+                <th>Status</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for trek in treks %}
+            <tr>
+                <td>{{ trek.id }}</td>
+                <td>{{ trek.name }}</td>
+                <td>{{ trek.location }}</td>
+                <td>{{ trek.difficulty }}</td>
+                <td>{{ trek.duration }} days</td>
+                <td>{{ trek.available_slots }}/{{ trek.total_slots }}</td>
+                <td>
+                    <span class="badge 
+                        {% if trek.status == 'Open' %}bg-success
+                        {% elif trek.status == 'Closed' %}bg-danger
+                        {% elif trek.status == 'Completed' %}bg-secondary
+                        {% elif trek.status == 'Approved' %}bg-info
+                        {% else %}bg-warning{% endif %}">
+                        {{ trek.status }}
+                    </span>
+                </td>
+                <td>{{ trek.start_date }}</td>
+                <td>{{ trek.end_date }}</td>
+                <td>
+                    <a href="/admin/trek/{{ trek.id }}/edit" class="btn btn-warning btn-sm">Edit</a>
+                    <a href="/admin/trek/{{ trek.id }}/delete" class="btn btn-danger btn-sm">Delete</a>
+                    <a href="/admin/trek/{{ trek.id }}/assign" class="btn btn-info btn-sm">Assign Staff</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+    crossorigin="anonymous"></script>
+</body>
+</html>

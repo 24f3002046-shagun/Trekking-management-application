@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Search</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+</head>
+<body>
+
+<nav class="navbar navbar-dark bg-dark px-4">
+    <a class="navbar-brand" href="/">TrekManager</a>
+    <div class="d-flex gap-3">
+        <a href="/admin/dashboard" class="text-white text-decoration-none">Dashboard</a>
+        <a href="/admin/treks" class="text-white text-decoration-none">Treks</a>
+        <a href="/admin/users" class="text-white text-decoration-none">Users</a>
+        <a href="/admin/staff" class="text-white text-decoration-none">Staff</a>
+        <a href="/admin/bookings" class="text-white text-decoration-none">Bookings</a>
+        <a href="/admin/search" class="text-white text-decoration-none">Search</a>
+        <a href="/logout" class="text-white text-decoration-none">Logout</a>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <h4 class="mb-3">Search</h4>
+
+    <form method="GET" action="/admin/search">
+        <div class="row g-2 mb-4">
+            <div class="col-md-5">
+                <input type="text" class="form-control" name="q" value="{{ query }}" placeholder="Search by name, email, location...">
+            </div>
+            <div class="col-md-4">
+                <select class="form-select" name="type">
+                    <option value="trek" {% if search_type == 'trek' %}selected{% endif %}>Treks</option>
+                    <option value="user" {% if search_type == 'user' %}selected{% endif %}>Trekkers</option>
+                    <option value="staff" {% if search_type == 'staff' %}selected{% endif %}>Staff</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-dark w-100">Search</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Trek Results -->
+    {% if results_treks %}
+    <h5>Trek Results</h5>
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Location</th>
+                <th>Difficulty</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for trek in results_treks %}
+            <tr>
+                <td>{{ trek.id }}</td>
+                <td>{{ trek.name }}</td>
+                <td>{{ trek.location }}</td>
+                <td>{{ trek.difficulty }}</td>
+                <td>{{ trek.status }}</td>
+                <td>
+                    <a href="/admin/trek/{{ trek.id }}/edit" class="btn btn-warning btn-sm">Edit</a>
+                    <a href="/admin/trek/{{ trek.id }}/delete" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    <!-- User Results -->
+    {% if results_users %}
+    <h5>Trekker Results</h5>
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in results_users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.name }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.status }}</td>
+                <td>
+                    {% if user.status == 'active' %}
+                        <a href="/admin/user/blacklist/{{ user.id }}" class="btn btn-danger btn-sm">Blacklist</a>
+                    {% else %}
+                        <a href="/admin/user/unblacklist/{{ user.id }}" class="btn btn-success btn-sm">Unblacklist</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    <!-- Staff Results -->
+    {% if results_staff %}
+    <h5>Staff Results</h5>
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for staff in results_staff %}
+            <tr>
+                <td>{{ staff.id }}</td>
+                <td>{{ staff.name }}</td>
+                <td>{{ staff.email }}</td>
+                <td>{{ staff.status }}</td>
+                <td>
+                    {% if staff.status == 'active' %}
+                        <a href="/admin/staff/blacklist/{{ staff.id }}" class="btn btn-danger btn-sm">Blacklist</a>
+                    {% else %}
+                        <a href="/admin/staff/unblacklist/{{ staff.id }}" class="btn btn-success btn-sm">Unblacklist</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    {% if query and not results_treks and not results_users and not results_staff %}
+    <div class="alert alert-info">No results found for "{{ query }}"</div>
+    {% endif %}
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+    crossorigin="anonymous"></script>
+</body>
+</html>

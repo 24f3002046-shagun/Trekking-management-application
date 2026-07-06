@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Add Trek</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+</head>
+<body>
+
+<nav class="navbar navbar-dark bg-dark px-4">
+    <a class="navbar-brand" href="/">TrekManager</a>
+    <div class="d-flex gap-3">
+        <a href="/admin/dashboard" class="text-white text-decoration-none">Dashboard</a>
+        <a href="/admin/treks" class="text-white text-decoration-none">Treks</a>
+        <a href="/admin/users" class="text-white text-decoration-none">Users</a>
+        <a href="/admin/staff" class="text-white text-decoration-none">Staff</a>
+        <a href="/admin/bookings" class="text-white text-decoration-none">Bookings</a>
+        <a href="/admin/search" class="text-white text-decoration-none">Search</a>
+        <a href="/logout" class="text-white text-decoration-none">Logout</a>
+    </div>
+</nav>
+
+<div class="container mt-4" style="max-width: 600px;">
+    <h4 class="mb-4">Add New Trek</h4>
+
+    <form method="POST" action="/admin/trek/add">
+        <div class="mb-3">
+            <label class="form-label">Trek Name</label>
+            <input type="text" class="form-control" name="name" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Location</label>
+            <input type="text" class="form-control" name="location" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Difficulty</label>
+            <select class="form-select" name="difficulty" required>
+                <option value="">-- Select --</option>
+                <option value="Easy">Easy</option>
+                <option value="Moderate">Moderate</option>
+                <option value="Hard">Hard</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Duration (in days)</label>
+            <input type="number" class="form-control" name="duration" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Total Slots</label>
+            <input type="number" class="form-control" name="total_slots" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Start Date</label>
+            <input type="date" class="form-control" name="start_date" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">End Date</label>
+            <input type="date" class="form-control" name="end_date" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" name="description" rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn btn-success w-100">Add Trek</button>
+        <a href="/admin/treks" class="btn btn-secondary w-100 mt-2">Cancel</a>
+    </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+    crossorigin="anonymous"></script>
+</body>
+</html>

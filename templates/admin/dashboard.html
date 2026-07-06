@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+</head>
+<body>
+
+<nav class="navbar navbar-dark bg-dark px-4">
+    <a class="navbar-brand" href="/">TrekManager</a>
+    <div class="d-flex gap-3">
+        <a href="/admin/treks" class="text-white text-decoration-none">Treks</a>
+        <a href="/admin/users" class="text-white text-decoration-none">Users</a>
+        <a href="/admin/staff" class="text-white text-decoration-none">Staff</a>
+        <a href="/admin/bookings" class="text-white text-decoration-none">Bookings</a>
+        <a href="/admin/search" class="text-white text-decoration-none">Search</a>
+        <a href="/logout" class="text-white text-decoration-none">Logout</a>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <h4>Welcome, Admin!</h4>
+
+    {% if pending_staff > 0 %}
+    <div class="alert alert-warning">
+         {{ pending_staff }} staff member(s) are pending approval!
+        <a href="/admin/staff" class="alert-link">Review now</a>
+    </div>
+    {% endif %}
+
+    
+    <div class="row mt-3">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Total Treks</h5>
+                    <h2>{{ total_treks }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Total Trekkers</h5>
+                    <h2>{{ total_users }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info mb-3">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Total Staff</h5>
+                    <h2>{{ total_staff }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Total Bookings</h5>
+                    <h2>{{ total_bookings }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <div class="row mt-2">
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5>Trek Management</h5>
+                    <a href="/admin/treks" class="btn btn-primary btn-sm">View All Treks</a>
+                    <a href="/admin/trek/add" class="btn btn-success btn-sm">Add New Trek</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5>Staff Management</h5>
+                    <a href="/admin/staff" class="btn btn-info btn-sm">View All Staff</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5>User Management</h5>
+                    <a href="/admin/users" class="btn btn-secondary btn-sm">View All Users</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+    crossorigin="anonymous"></script>
+</body>
+</html>

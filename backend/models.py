@@ -17,7 +17,7 @@ class User(db.Model, UserMixin):
     created_at=db.Column(db.DateTime,default=datetime.utcnow)
 
     bookings=db.relationship('Booking',backref='trekker',cascade='all, delete-orphan')
-    staff_profile=db.relationship('StaffProfile',backref='trekker',cascade='all, delete-orphan')
+    staff_profile=db.relationship('StaffProfile',backref='user',cascade='all, delete-orphan')
 
     def get_id(self):
         return str(self.email)

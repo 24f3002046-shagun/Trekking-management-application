@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Manage Users</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+</head>
+<body>
+
+<nav class="navbar navbar-dark bg-dark px-4">
+    <a class="navbar-brand" href="/">TrekManager</a>
+    <div class="d-flex gap-3">
+        <a href="/admin/dashboard" class="text-white text-decoration-none">Dashboard</a>
+        <a href="/admin/treks" class="text-white text-decoration-none">Treks</a>
+        <a href="/admin/users" class="text-white text-decoration-none">Users</a>
+        <a href="/admin/staff" class="text-white text-decoration-none">Staff</a>
+        <a href="/admin/bookings" class="text-white text-decoration-none">Bookings</a>
+        <a href="/admin/search" class="text-white text-decoration-none">Search</a>
+        <a href="/logout" class="text-white text-decoration-none">Logout</a>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <h4 class="mb-3">All Trekkers</h4>
+
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Address</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.name }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.phone }}</td>
+                <td>{{ user.address }}</td>
+                <td>
+                    <span class="badge
+                        {% if user.status == 'active' %}bg-success
+                        {% else %}bg-danger{% endif %}">
+                        {{ user.status }}
+                    </span>
+                </td>
+                <td>
+                    {% if user.status == 'active' %}
+                        <a href="/admin/user/blacklist/{{ user.id }}" class="btn btn-danger btn-sm">Blacklist</a>
+                    {% else %}
+                        <a href="/admin/user/unblacklist/{{ user.id }}" class="btn btn-success btn-sm">Unblacklist</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+    crossorigin="anonymous"></script>
+</body>
+</html>

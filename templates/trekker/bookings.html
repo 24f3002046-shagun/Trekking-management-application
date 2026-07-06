@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>My Bookings</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+</head>
+<body>
+
+<nav class="navbar navbar-dark bg-dark px-4">
+    <a class="navbar-brand" href="/">TrekManager</a>
+    <div class="d-flex gap-3">
+        <a href="/trekker/dashboard" class="text-white text-decoration-none">Dashboard</a>
+        <a href="/trekker/treks" class="text-white text-decoration-none">Browse Treks</a>
+        <a href="/trekker/bookings" class="text-white text-decoration-none">My Bookings</a>
+        <a href="/trekker/profile/edit" class="text-white text-decoration-none">Edit Profile</a>
+        <a href="/logout" class="text-white text-decoration-none">Logout</a>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <h4 class="mb-3">My Booking History</h4>
+
+    {% if bookings %}
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Booking ID</th>
+                <th>Trek</th>
+                <th>Location</th>
+                <th>Difficulty</th>
+                <th>Start Date</th>
+                <th>Booking Date</th>
+                <th>Status</th>
+                <th>Payment</th>
+                <th>Action</th>  
+            </tr>
+        </thead>
+        <tbody>
+            {% for booking in bookings %}
+            <tr>
+                <td>{{ booking.id }}</td>
+                <td>{{ booking.trek.name }}</td>
+                <td>{{ booking.trek.location }}</td>
+                <td>{{ booking.trek.difficulty }}</td>
+                <td>{{ booking.trek.start_date }}</td>
+                <td>{{ booking.booking_date.strftime('%d-%m-%Y') }}</td>
+                <td>
+                    <span class="badge
+                        {% if booking.status == 'Booked' %}bg-success
+                        {% elif booking.status == 'Cancelled' %}bg-danger
+                        {% else %}bg-secondary{% endif %}">
+                        {{ booking.status }}
+                    </span>
+                </td>
+                <td>{{ booking.payment_status }}</td>
+                <td>{{ booking.payment_status }}</td>
+                <td>                              
+                    {% if booking.status == 'Booked' %}
+                        <a href="/trekker/booking/{{ booking.id }}/cancel" class="btn btn-danger btn-sm">Cancel</a>
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="alert alert-info">You have no bookings yet.
+        <a href="/trekker/treks">Browse treks</a> to get started.
+    </div>
+    {% endif %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+    crossorigin="anonymous"></script>
+</body>
+</html>
