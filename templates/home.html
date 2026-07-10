@@ -1,32 +1,163 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>TrekManager</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-</head>
-<body>
-    <h3 class="text-center mt-4">Welcome to TrekManager</h3>
+{% extends 'base.html' %}
 
-    <div class="d-flex justify-content-center gap-2 mt-3">
-        <a href="/login" class="btn btn-primary">Login</a>
+{% block title %}Home - PeakQuesting{% endblock %}
 
-        <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Register
-            </button>
-            <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="/register?role=trekker">Trekker</a></li>
-                <li><a class="dropdown-item" href="/register?role=staff">Trek Staff</a></li>
-            </ul>
+{% block content %}
+<section class="hero-section text-white">
+    <div class="container py-5">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-7">
+                <h1 class="display-5 fw-bold">Your next sidequest is waiting for you.</h1>
+                <p class="lead">Explore curated treks, compare trail difficulty, and discover the best adventures with real trekkers' ratings and stories.</p>
+                <div class="d-flex flex-wrap gap-2 mt-4">
+                    <a href="/login" class="btn btn-light btn-lg">Login</a>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-light btn-lg dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Register
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/register?role=trekker">Trekker</a></li>
+                            <li><a class="dropdown-item" href="/register?role=staff">Trek Staff</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="card bg-dark border-0 shadow-lg" style="background-color: rgba(8, 20, 35, 0.85) !important;">
+                    <div class="card-body p-4 text-white">
+                        <h5 class="fw-semibold">Why trekkers love PeakQuesting</h5>
+                        <ul class="mb-0 mt-3">
+                            <li>Photo-led trek discovery</li>
+                            <li>Verified reviews and star ratings</li>
+                            <li>Easy booking and trip planning</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+</section>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-        crossorigin="anonymous"></script>
-</body>
-</html>
+<section class="container py-4">
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-uppercase text-muted">Trusted by explorers</h6>
+                    <h4 class="fw-bold mb-0">4.9/5 average trek rating</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-uppercase text-muted">Handpicked experiences</h6>
+                    <h4 class="fw-bold mb-0">Curated routes for every level</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-uppercase text-muted">Easy planning</h6>
+                    <h4 class="fw-bold mb-0">Reserve your next adventure in minutes</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container py-2">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h3 class="fw-bold mb-1">Featured treks</h3>
+            <p class="text-muted mb-0">Top-rated trails with real experiences from our community.</p>
+        </div>
+        <a href="/register?role=trekker" class="btn btn-outline-dark">Explore all</a>
+    </div>
+
+    {% if featured_treks %}
+    <div class="row g-4">
+        {% for item in featured_treks %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1000&q=80" class="card-img-top" style="height: 180px; object-fit: cover;" alt="{{ item.trek.name }}">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="card-title mb-0">{{ item.trek.name }}</h5>
+                        <span class="badge bg-success">{{ item.avg_rating }} ★</span>
+                    </div>
+                    <p class="text-muted small mb-2">{{ item.trek.location }}</p>
+                    <p class="card-text">{{ item.trek.description }}</p>
+                    <div class="d-flex justify-content-between text-muted small mb-3">
+                        <span>{{ item.trek.difficulty }}</span>
+                        <span>{{ item.trek.duration }} days</span>
+                    </div>
+                    <span class="badge bg-light text-dark">{{ item.review_count }} reviews</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</section>
+
+<section class="container py-5">
+    <div class="row g-4 align-items-center">
+        <div class="col-lg-7">
+            <h3 class="fw-bold mb-3">Why trekkers use PeakQuesting</h3>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <h5 class="fw-semibold">Discover routes that fit your style</h5>
+                            <p class="text-muted mb-0">Browse beginner-friendly, moderate, and challenging treks with clear details and availability.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <h5 class="fw-semibold">Share your own story</h5>
+                            <p class="text-muted mb-0">Review treks after your trip and help other adventurers choose their next trail.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="fw-semibold mb-3">Community stories</h5>
+                    {% if community_reviews %}
+                    {% for review in community_reviews %}
+                    <div class="border rounded p-3 mb-2">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <strong>{{ review.name }}</strong>
+                            <span class="badge bg-success">{{ review.rating }} ★</span>
+                        </div>
+                        <p class="small text-muted mb-1">{{ review.trek }}</p>
+                        <p class="mb-0">"{{ review.comment }}"</p>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p class="text-muted mb-0">Be the first one to share a trek story.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="bg-dark text-white mt-5 py-4">
+    <div class="container text-center">
+        <p class="mb-0">Contact us at <a href="mailto:peakquesting@gmail.com" class="text-white text-decoration-underline">peakquesting@gmail.com</a></p>
+    </div>
+</footer>
+
+<style>
+.hero-section {
+    background: linear-gradient(rgba(13, 27, 42, 0.65), rgba(13, 27, 42, 0.65)), url('https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1400&q=80') center/cover;
+}
+</style>
+{% endblock %}

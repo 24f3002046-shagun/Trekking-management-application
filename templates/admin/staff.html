@@ -1,27 +1,7 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Manage Staff</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-</head>
-<body>
+{% extends 'base.html' %}
+{% block title %}Manage Staff - PeakQuesting{% endblock %}
 
-<nav class="navbar navbar-dark bg-dark px-4">
-    <a class="navbar-brand" href="/">TrekManager</a>
-    <div class="d-flex gap-3">
-        <a href="/admin/dashboard" class="text-white text-decoration-none">Dashboard</a>
-        <a href="/admin/treks" class="text-white text-decoration-none">Treks</a>
-        <a href="/admin/users" class="text-white text-decoration-none">Users</a>
-        <a href="/admin/staff" class="text-white text-decoration-none">Staff</a>
-        <a href="/admin/bookings" class="text-white text-decoration-none">Bookings</a>
-        <a href="/admin/search" class="text-white text-decoration-none">Search</a>
-        <a href="/logout" class="text-white text-decoration-none">Logout</a>
-    </div>
-</nav>
-
+{% block content %}
 <div class="container mt-4">
     <h4 class="mb-3">All Trek Staff</h4>
 
@@ -56,24 +36,20 @@
                     </span>
                 </td>
                 <td>
-                    {% if staff.status == 'pending' %}
-                        <div class="d-flex gap-1"
-                        <a href="/admin/staff/approve/{{ staff.id }}" class="btn btn-success btn-sm">Approve</a>
-                        <a href="/admin/staff/blacklist/{{ staff.id }}" class="btn btn-danger btn-sm">Blacklist</a>
-                    {% elif staff.status == 'approved' %}
-                        <a href="/admin/staff/blacklist/{{ staff.id }}" class="btn btn-danger btn-sm">Blacklist</a>
-                    {% elif staff.status == 'blacklisted' %}
-                        <a href="/admin/staff/unblacklist/{{ staff.id }}" class="btn btn-success btn-sm">Unblacklist</a>
-                    {% endif %}
+                    <div class="d-flex gap-1">
+                        {% if staff.status == 'pending' %}
+                            <a href="/admin/staff/approve/{{ staff.id }}" class="btn btn-success btn-sm">Approve</a>
+                            <a href="/admin/staff/blacklist/{{ staff.id }}" class="btn btn-danger btn-sm">Blacklist</a>
+                        {% elif staff.status == 'approved' %}
+                            <a href="/admin/staff/blacklist/{{ staff.id }}" class="btn btn-danger btn-sm">Blacklist</a>
+                        {% elif staff.status == 'blacklisted' %}
+                            <a href="/admin/staff/unblacklist/{{ staff.id }}" class="btn btn-success btn-sm">Unblacklist</a>
+                        {% endif %}
+                    </div>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-    crossorigin="anonymous"></script>
-</body>
-</html>
+{% endblock %}

@@ -1,4 +1,4 @@
-from .models import db, User, StaffProfile, Trek, Booking
+from .models import db, User, StaffProfile, Trek, Booking, Review
 from flask import current_app as app
 from datetime import date
 
@@ -94,7 +94,7 @@ with app.app_context():
             status='Open',
             start_date=date(2025, 6, 1),
             end_date=date(2025, 6, 7),
-            description='A beautiful trek through alpine meadows.',
+            description='A beautiful trek through alpine meadows with wildflowers and glacial streams.',
             assigned_staff_id=staff1_profile.id if staff1_profile else None
         )
         trek2 = Trek(
@@ -107,7 +107,7 @@ with app.app_context():
             status='Open',
             start_date=date(2025, 7, 10),
             end_date=date(2025, 7, 18),
-            description='High altitude trek to the mysterious skeleton lake.',
+            description='High altitude trek to the mysterious skeleton lake with striking alpine views.',
             assigned_staff_id=staff2_profile.id if staff2_profile else None
         )
         trek3 = Trek(
@@ -120,11 +120,45 @@ with app.app_context():
             status='Open',
             start_date=date(2025, 8, 5),
             end_date=date(2025, 8, 7),
-            description='A refreshing easy trek through coffee plantations.',
+            description='A refreshing easy trek through coffee plantations and misty ridges.',
             assigned_staff_id=None
+        )
+        trek4 = Trek(
+            name='Hampta Pass',
+            location='Himachal Pradesh',
+            difficulty='Hard',
+            duration=5,
+            total_slots=12,
+            available_slots=12,
+            status='Open',
+            start_date=date(2025, 9, 12),
+            end_date=date(2025, 9, 17),
+            description='A dramatic pass crossing through green valleys and glacial terrain.',
+            assigned_staff_id=staff1_profile.id if staff1_profile else None
         )
         db.session.add(trek1)
         db.session.add(trek2)
         db.session.add(trek3)
+        db.session.add(trek4)
         db.session.commit()
+
+        trekkers = User.query.filter_by(role='trekker').all()
+
+        if Review.query.first() is None:
+            sample_reviews = [
+                Review(user_id=trekkers[0].id, trek_id=trek1.id, rating=5, comment='The scenery was breathtaking and the guide was excellent.'),
+                Review(user_id=trekkers[1].id, trek_id=trek2.id, rating=4, comment='Challenging but incredibly rewarding.'),
+                Review(user_id=trekkers[0].id, trek_id=trek3.id, rating=5, comment='Perfect weekend escape with lovely views.'),
+            ]
+            db.session.add_all(sample_reviews)
+            db.session.commit()
+
+        if Booking.query.first() is None:
+            sample_bookings = [
+                Booking(user_id=trekkers[0].id, trek_id=trek1.id, status='Booked', payment_status='Paid'),
+                Booking(user_id=trekkers[1].id, trek_id=trek2.id, status='Booked', payment_status='Paid'),
+                Booking(user_id=trekkers[0].id, trek_id=trek4.id, status='Booked', payment_status='Pending'),
+            ]
+            db.session.add_all(sample_bookings)
+            db.session.commit()
         print("Treks created.")

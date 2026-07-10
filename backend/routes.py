@@ -3,9 +3,62 @@ from flask import render_template, redirect, request, flash
 from .models import *
 from flask_login import login_user, login_required, current_user, logout_user
 from datetime import datetime
+from functools import wraps
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated or current_user.role != 'admin':
+            return "Unauthorized. Admins only.", 403
+        return f(*args, **kwargs)
+    return decorated_function
+
+def staff_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated or current_user.role != 'staff':
+            return "Unauthorized. Staff only.", 403
+        staff_profile = StaffProfile.query.filter_by(user_id=current_user.id).first()
+        if not staff_profile or staff_profile.status != 'approved':
+            return "Your account is pending admin approval.", 403
+        return f(*args, **kwargs)
+    return decorated_function
+
+def trekker_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated or current_user.role != 'trekker':
+            return "Unauthorized! Trekkers only.", 403
+        if current_user.status == 'blacklisted':
+            return "Your account has been blacklisted.", 403
+        return f(*args, **kwargs)
+    return decorated_function
+
 @app.route('/')
 def home():
-    return render_template("home.html")
+    featured_treks = Trek.query.filter_by(status='Open').order_by(Trek.id).all()
+    review_entries = []
+    community_reviews = []
+    for trek in featured_treks:
+        ratings = [review.rating for review in trek.reviews]
+        avg_rating = sum(ratings) / len(ratings) if ratings else 0
+        review_entries.append({
+            'trek': trek,
+            'avg_rating': round(avg_rating, 1),
+            'review_count': len(ratings)
+        })
+        for review in trek.reviews[:2]:
+            community_reviews.append({
+                'trek': trek.name,
+                'rating': review.rating,
+                'comment': review.comment,
+                'name': review.trekker.name if review.trekker else 'Trekker'
+            })
+    return render_template(
+        "home.html",
+        featured_treks=review_entries,
+        community_reviews=community_reviews[:3]
+    )
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -20,24 +73,27 @@ def login():
         
         if user:
             if user.status == 'blacklisted':
-                return "Your account has been blacklisted."
+                flash("Your account has been blacklisted.", "danger")
+                return redirect('/login')
             if user.password == fpwd:
                 login_user(user)
                 if user.role == 'admin':
                     return redirect("/admin/dashboard")
                 elif user.role == 'staff':
-                
                     staff_profile = db.session.query(StaffProfile).filter_by(user_id=user.id).first()
                     if staff_profile and staff_profile.status == 'approved':
                         return redirect("/staff/dashboard")
                     else:
-                        return "Your account is pending admin approval."
+                        flash("Your account is pending admin approval.", "warning")
+                        return redirect('/login')
                 elif user.role == 'trekker':
                     return redirect("/trekker/dashboard")
             else:
-                return "Invalid password!"
+                flash("Invalid password","danger")
+                return redirect('/login')
         else:
-            return "User not found!"
+            flash("User not found","danger")
+            return redirect('/login')
 
 @app.route('/register', methods=['GET','POST'])
 def register():
@@ -60,7 +116,8 @@ def register():
 
         existing=db.session.query(User).filter_by(email=femail).first()
         if existing:
-            return "User with this email already exists."
+            flash("User with this email already exists!", "danger")
+            return redirect(request.url)
         
         if role=='trekker':
             new_user = User(
@@ -74,7 +131,9 @@ def register():
             )
             db.session.add(new_user)
             db.session.commit()
+            flash("Your registration was successful. Please login.", "success")
             return redirect('/login')
+            
         
         elif role=='staff':
             fbio = request.form.get('bio')
@@ -98,6 +157,7 @@ def register():
             )
             db.session.add(new_profile)
             db.session.commit()
+            flash("Registration successful! Please wait for admin approval.", "warning")
             return redirect('/login')
 
 @app.route('/logout')
@@ -108,28 +168,42 @@ def logout():
 
 @app.route('/admin/dashboard')
 @login_required
+@admin_required
 def admin_dashboard():
     total_treks = Trek.query.count()
     total_users = User.query.filter_by(role='trekker').count()
     total_staff = User.query.filter_by(role='staff').count()
     total_bookings = Booking.query.count()
     pending_staff = StaffProfile.query.filter_by(status='pending').count()
-    
+    booking_stats = []
+    for trek in Trek.query.order_by(Trek.id).all():
+        booking_count = Booking.query.filter_by(trek_id=trek.id, status='Booked').count()
+        if booking_count > 0:
+            booking_stats.append((trek.name, booking_count))
+
+    trek_stats = []
+    for trek in Trek.query.order_by(Trek.id).all():
+        trek_stats.append((trek.name, trek.available_slots))
+
     return render_template('admin/dashboard.html',
         total_treks=total_treks,
         total_users=total_users,
         total_staff=total_staff,
         total_bookings=total_bookings,
-        pending_staff=pending_staff
+        pending_staff=pending_staff,
+        booking_stats=booking_stats,
+        trek_stats=trek_stats
     )
 @app.route('/admin/treks')
 @login_required
+@admin_required
 def admin_treks():
     treks = Trek.query.all()
     return render_template('admin/treks.html', treks=treks)
 
 @app.route('/admin/trek/add', methods=['GET', 'POST'])
 @login_required
+@admin_required
 def admin_add_trek():
     if request.method == 'GET':
         return render_template('admin/add_trek.html')
@@ -162,6 +236,7 @@ def admin_add_trek():
 
 @app.route('/admin/trek/<int:trek_id>/edit', methods=['GET', 'POST'])
 @login_required
+@admin_required
 def admin_edit_trek(trek_id):
     trek = Trek.query.get(trek_id)
     if request.method == 'GET':
@@ -184,6 +259,7 @@ def admin_edit_trek(trek_id):
 
 @app.route('/admin/trek/<int:trek_id>/delete')
 @login_required
+@admin_required
 def admin_delete_trek(trek_id):
     trek = Trek.query.get(trek_id)
     if trek:
@@ -194,6 +270,7 @@ def admin_delete_trek(trek_id):
 
 @app.route('/admin/trek/<int:trek_id>/assign', methods=['GET', 'POST'])
 @login_required
+@admin_required
 def admin_assign_staff(trek_id):
     trek = Trek.query.get(trek_id)
     
@@ -210,12 +287,14 @@ def admin_assign_staff(trek_id):
 
 @app.route('/admin/staff')
 @login_required
+@admin_required
 def admin_staff():
     staff_list = db.session.query(StaffProfile).all()
     return render_template('admin/staff.html', staff_list=staff_list)
 
 @app.route('/admin/staff/<string:action>/<int:staff_id>')
 @login_required
+@admin_required
 def admin_staff_action(action, staff_id):
     staff = StaffProfile.query.get(staff_id)
     if staff:
@@ -230,12 +309,14 @@ def admin_staff_action(action, staff_id):
 
 @app.route('/admin/users')
 @login_required
+@admin_required
 def admin_users():
     users = User.query.filter_by(role='trekker').all()
     return render_template('admin/users.html', users=users)
 
 @app.route('/admin/user/<string:action>/<int:user_id>')
 @login_required
+@admin_required
 def admin_user_action(action, user_id):
     user = User.query.get(user_id)
     if user:
@@ -248,12 +329,14 @@ def admin_user_action(action, user_id):
 
 @app.route('/admin/bookings')
 @login_required
+@admin_required
 def admin_bookings():
     bookings = Booking.query.all()
     return render_template('admin/bookings.html', bookings=bookings)
 
 @app.route('/admin/search')
 @login_required
+@admin_required
 def admin_search():
     query = request.args.get('q', '')
     search_type = request.args.get('type', 'trek')
@@ -290,6 +373,7 @@ def admin_search():
 
 @app.route('/staff/dashboard')
 @login_required
+@staff_required
 def staff_dashboard():
     staff_profile = StaffProfile.query.filter_by(user_id=current_user.id).first()
     assigned_treks = Trek.query.filter_by(assigned_staff_id=staff_profile.id).all()
@@ -306,6 +390,7 @@ def staff_dashboard():
 
 @app.route('/staff/trek/<int:trek_id>/update', methods=['GET', 'POST'])
 @login_required
+@staff_required
 def staff_update_trek(trek_id):
     trek = Trek.query.get(trek_id)
     staff_profile = StaffProfile.query.filter_by(user_id=current_user.id).first()
@@ -320,10 +405,12 @@ def staff_update_trek(trek_id):
         trek.available_slots = int(request.form.get('available_slots'))
         trek.status = request.form.get('status')
         db.session.commit()
+        flash("Trek updated successfully!", "success")
         return redirect('/staff/dashboard')
 
 @app.route('/staff/trek/<int:trek_id>/participants')
 @login_required
+@staff_required
 def staff_participants(trek_id):
     trek = Trek.query.get(trek_id)
     staff_profile = StaffProfile.query.filter_by(user_id=current_user.id).first()
@@ -336,6 +423,7 @@ def staff_participants(trek_id):
 
 @app.route('/trekker/dashboard')
 @login_required
+@trekker_required
 def trekker_dashboard():
     available_treks = Trek.query.filter_by(status='Open').all()
     my_bookings = Booking.query.filter_by(user_id=current_user.id).all()
@@ -345,15 +433,42 @@ def trekker_dashboard():
         my_bookings=my_bookings
     )
 
+@app.route('/trekker/trek/<int:trek_id>/review', methods=['GET', 'POST'])
+@login_required
+@trekker_required
+def trekker_review_trek(trek_id):
+    trek = Trek.query.get(trek_id)
+    if request.method == 'GET':
+        return render_template('trekker/review.html', trek=trek)
+
+    if request.method == 'POST':
+        booking = Booking.query.filter_by(user_id=current_user.id, trek_id=trek_id, status='Booked').first()
+        if not booking:
+            flash('You can only review treks you have booked.', 'warning')
+            return redirect('/trekker/bookings')
+
+        review = Review.query.filter_by(user_id=current_user.id, trek_id=trek_id).first()
+        if review is None:
+            review = Review(user_id=current_user.id, trek_id=trek_id)
+        review.rating = int(request.form.get('rating'))
+        review.comment = request.form.get('comment', '').strip()
+        db.session.add(review)
+        db.session.commit()
+        flash('Your trek review was saved.', 'success')
+        return redirect('/trekker/bookings')
+
 @app.route('/trekker/trek/<int:trek_id>/book')
 @login_required
+@trekker_required
 def trekker_book_trek(trek_id):
     trek = Trek.query.get(trek_id)
     if trek.status != 'Open':
-        return "This trek is not open for booking!"
+        flash("This trek is not open for booking.", "danger")
+        return redirect('/trekker/treks')
 
     if trek.available_slots <= 0:
-        return "No slots available for this trek!"
+        flash("No slots available for this trek.", "danger")
+        return redirect('/trekker/treks')
 
     existing = Booking.query.filter_by(
         user_id=current_user.id,
@@ -361,7 +476,8 @@ def trekker_book_trek(trek_id):
         status='Booked'
     ).first()
     if existing:
-        return "You have already booked this trek!"
+        flash("You have already booked this trek.", "warning")
+        return redirect('/trekker/treks')
 
     new_booking = Booking(
         user_id=current_user.id,
@@ -374,16 +490,19 @@ def trekker_book_trek(trek_id):
     trek.available_slots -= 1
     db.session.commit()
 
+    flash("Trek booked successfully!", "success")
     return redirect('/trekker/bookings')
 
 @app.route('/trekker/bookings')
 @login_required
+@trekker_required
 def trekker_bookings():
     bookings = Booking.query.filter_by(user_id=current_user.id).all()
     return render_template('trekker/bookings.html', bookings=bookings)
 
 @app.route('/trekker/treks')
 @login_required
+@trekker_required
 def trekker_treks():
     difficulty = request.args.get('difficulty', '')
     location = request.args.get('location', '')
@@ -413,6 +532,7 @@ def trekker_treks():
 
 @app.route('/trekker/profile/edit', methods=['GET', 'POST'])
 @login_required
+@trekker_required
 def trekker_edit_profile():
     if request.method == 'GET':
         return render_template('trekker/profile.html', user=current_user)
@@ -422,19 +542,22 @@ def trekker_edit_profile():
         current_user.phone = request.form.get('phone')
         current_user.address = request.form.get('address')
         db.session.commit()
+        flash("Profile updated successfully!", "success")
         return redirect('/trekker/dashboard')
     
 @app.route('/trekker/booking/<int:booking_id>/cancel')
 @login_required
+@trekker_required
 def trekker_cancel_booking(booking_id):
     booking = Booking.query.get(booking_id)
 
     if booking.user_id != current_user.id:
-        return "Unauthorized."
+        flash("Unauthorized", "danger")
+        return redirect('/trekker/bookings')
 
     if booking.status == 'Booked':
         booking.status = 'Cancelled'
         booking.trek.available_slots += 1
         db.session.commit()
-
+        flash("Booking cancelled successfully.", "success")
     return redirect('/trekker/bookings')

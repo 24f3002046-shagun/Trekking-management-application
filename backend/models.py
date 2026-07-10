@@ -17,6 +17,7 @@ class User(db.Model, UserMixin):
     created_at=db.Column(db.DateTime,default=datetime.utcnow)
 
     bookings=db.relationship('Booking',backref='trekker',cascade='all, delete-orphan')
+    reviews=db.relationship('Review',backref='trekker',cascade='all, delete-orphan')
     staff_profile=db.relationship('StaffProfile',backref='user',cascade='all, delete-orphan')
 
     def get_id(self):
@@ -49,6 +50,7 @@ class Trek(db.Model):
     created_at=db.Column(db.DateTime,default=datetime.utcnow)
 
     bookings = db.relationship('Booking', backref='trek', cascade='all, delete-orphan', lazy=True)
+    reviews = db.relationship('Review', backref='trek', cascade='all, delete-orphan', lazy=True)
 
 class Booking(db.Model):
     __tablename__='booking'
@@ -58,3 +60,12 @@ class Booking(db.Model):
     booking_date=db.Column(db.DateTime,default=datetime.utcnow)
     status=db.Column(db.String,default='Booked')
     payment_status=db.Column(db.String,default='Pending')
+
+class Review(db.Model):
+    __tablename__='review'
+    id=db.Column(db.Integer,primary_key=True,autoincrement=True)
+    user_id=db.Column(db.Integer,db.ForeignKey('user.id'),nullable=False)
+    trek_id=db.Column(db.Integer,db.ForeignKey('trek.id'),nullable=False)
+    rating=db.Column(db.Integer,nullable=False)
+    comment=db.Column(db.String,nullable=False)
+    created_at=db.Column(db.DateTime,default=datetime.utcnow)

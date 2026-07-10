@@ -1,27 +1,7 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Search</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-</head>
-<body>
+{% extends 'base.html' %}
+{% block title %}Search - PeakQuesting{% endblock %}
 
-<nav class="navbar navbar-dark bg-dark px-4">
-    <a class="navbar-brand" href="/">TrekManager</a>
-    <div class="d-flex gap-3">
-        <a href="/admin/dashboard" class="text-white text-decoration-none">Dashboard</a>
-        <a href="/admin/treks" class="text-white text-decoration-none">Treks</a>
-        <a href="/admin/users" class="text-white text-decoration-none">Users</a>
-        <a href="/admin/staff" class="text-white text-decoration-none">Staff</a>
-        <a href="/admin/bookings" class="text-white text-decoration-none">Bookings</a>
-        <a href="/admin/search" class="text-white text-decoration-none">Search</a>
-        <a href="/logout" class="text-white text-decoration-none">Logout</a>
-    </div>
-</nav>
-
+{% block content %}
 <div class="container mt-4">
     <h4 class="mb-3">Search</h4>
 
@@ -43,18 +23,12 @@
         </div>
     </form>
 
-    <!-- Trek Results -->
     {% if results_treks %}
     <h5>Trek Results</h5>
     <table class="table table-bordered table-hover">
         <thead class="table-dark">
             <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Location</th>
-                <th>Difficulty</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th>ID</th><th>Name</th><th>Location</th><th>Difficulty</th><th>Status</th><th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -66,8 +40,10 @@
                 <td>{{ trek.difficulty }}</td>
                 <td>{{ trek.status }}</td>
                 <td>
-                    <a href="/admin/trek/{{ trek.id }}/edit" class="btn btn-warning btn-sm">Edit</a>
-                    <a href="/admin/trek/{{ trek.id }}/delete" class="btn btn-danger btn-sm">Delete</a>
+                    <div class="d-flex gap-1">
+                        <a href="/admin/trek/{{ trek.id }}/edit" class="btn btn-warning btn-sm">Edit</a>
+                        <a href="/admin/trek/{{ trek.id }}/delete" class="btn btn-danger btn-sm">Delete</a>
+                    </div>
                 </td>
             </tr>
             {% endfor %}
@@ -75,17 +51,12 @@
     </table>
     {% endif %}
 
-    <!-- User Results -->
     {% if results_users %}
     <h5>Trekker Results</h5>
     <table class="table table-bordered table-hover">
         <thead class="table-dark">
             <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th>ID</th><th>Name</th><th>Email</th><th>Status</th><th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -108,17 +79,12 @@
     </table>
     {% endif %}
 
-    <!-- Staff Results -->
     {% if results_staff %}
     <h5>Staff Results</h5>
     <table class="table table-bordered table-hover">
         <thead class="table-dark">
             <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th>ID</th><th>Name</th><th>Email</th><th>Status</th><th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -144,11 +110,5 @@
     {% if query and not results_treks and not results_users and not results_staff %}
     <div class="alert alert-info">No results found for "{{ query }}"</div>
     {% endif %}
-
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-    crossorigin="anonymous"></script>
-</body>
-</html>
+{% endblock %}

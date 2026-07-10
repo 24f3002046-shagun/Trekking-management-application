@@ -1,25 +1,7 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>My Bookings</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-</head>
-<body>
+{% extends 'base.html' %}
+{% block title %}My Bookings - PeakQuesting{% endblock %}
 
-<nav class="navbar navbar-dark bg-dark px-4">
-    <a class="navbar-brand" href="/">TrekManager</a>
-    <div class="d-flex gap-3">
-        <a href="/trekker/dashboard" class="text-white text-decoration-none">Dashboard</a>
-        <a href="/trekker/treks" class="text-white text-decoration-none">Browse Treks</a>
-        <a href="/trekker/bookings" class="text-white text-decoration-none">My Bookings</a>
-        <a href="/trekker/profile/edit" class="text-white text-decoration-none">Edit Profile</a>
-        <a href="/logout" class="text-white text-decoration-none">Logout</a>
-    </div>
-</nav>
-
+{% block content %}
 <div class="container mt-4">
     <h4 class="mb-3">My Booking History</h4>
 
@@ -35,7 +17,7 @@
                 <th>Booking Date</th>
                 <th>Status</th>
                 <th>Payment</th>
-                <th>Action</th>  
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -56,10 +38,12 @@
                     </span>
                 </td>
                 <td>{{ booking.payment_status }}</td>
-                <td>{{ booking.payment_status }}</td>
-                <td>                              
+                <td>
                     {% if booking.status == 'Booked' %}
-                        <a href="/trekker/booking/{{ booking.id }}/cancel" class="btn btn-danger btn-sm">Cancel</a>
+                        <div class="d-flex gap-2">
+                            <a href="/trekker/booking/{{ booking.id }}/cancel" class="btn btn-danger btn-sm">Cancel</a>
+                            <a href="/trekker/trek/{{ booking.trek.id }}/review" class="btn btn-outline-success btn-sm">Review</a>
+                        </div>
                     {% else %}
                         -
                     {% endif %}
@@ -70,13 +54,8 @@
     </table>
     {% else %}
     <div class="alert alert-info">You have no bookings yet.
-        <a href="/trekker/treks">Browse treks</a> to get started.
+        <a href="/trekker/treks">Browse treks</a> to get started!
     </div>
     {% endif %}
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-    crossorigin="anonymous"></script>
-</body>
-</html>
+{% endblock %}
